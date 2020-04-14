@@ -49,19 +49,23 @@ class Trie:
             raise KeyError
         if type(key) != self.typ:
             return TypeError
+        del self.children["key"]
 
     def __contains__(self, key):
         """
         Is key a key in the trie? return True or False.
         """
-        raise NotImplementedError
+        # hint - repeats previous code; use other functions
+        # does self.children[key] count as using __getitem__
+        return key in self.children and self.children[key] != None
 
     def __iter__(self):
         """
         Generator of (key, value) pairs for all keys/values in this trie and
         its children.  Must be a generator!
         """
-        raise NotImplementedError
+        for key, value in self.children.items():
+            yield (key, value)
 
 
 def make_word_trie(text):
