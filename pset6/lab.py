@@ -5,12 +5,11 @@ from text_tokenize import tokenize_sentences
 class Trie:
     def __init__(self):
         # set value, children, type
-        value = None
-        children = {}
+        self.value = None
+        self.children = {}
         # some way to keep track of the type of the keys 
         # without explicitly storing the entire keys themselves
-        typ = None
-
+        self.typ = None
 
     def __setitem__(self, key, value):
         """
@@ -23,8 +22,22 @@ class Trie:
             raise TypeError
         elif len(key) >= 1:
             self.value = value
-            self.children[key] = [key[:i] for i in range(1, len(key))]
-            typ = type(key)
+            for i in range(1, len(key)):
+                self.children[key[:i]] = Trie()
+            # self.children[key] = [key[:i] for i in range(1, len(key))]
+            self.typ = type(key)
+
+    def __getitem__(self, key):
+        """
+        Return the value for the specified prefix.  If the given key is not in
+        the trie, raise a KeyError.  If the given key is of the wrong type,
+        raise a TypeError.
+        """
+        if key not in self.children.values():
+            raise KeyError
+        if type(key) != self.typ:
+            return TypeError
+        return self.children[key]
 
     def __delitem__(self, key):
         """
@@ -32,7 +45,10 @@ class Trie:
         the trie, raise a KeyError.  If the given key is of the wrong type,
         raise a TypeError.
         """
-        raise NotImplementedError
+        if key not in self.children.values():
+            raise KeyError
+        if type(key) != self.typ:
+            return TypeError
 
     def __contains__(self, key):
         """
