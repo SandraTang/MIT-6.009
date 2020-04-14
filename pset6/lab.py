@@ -4,7 +4,12 @@ from text_tokenize import tokenize_sentences
 
 class Trie:
     def __init__(self):
-        raise NotImplementedError
+        # set value, children, type
+        value = None
+        children = {}
+        # some way to keep track of the type of the keys 
+        # without explicitly storing the entire keys themselves
+        typ = None
 
 
     def __setitem__(self, key, value):
@@ -14,16 +19,12 @@ class Trie:
         immutable ordered sequence.  Raise a TypeError if the given key is of
         the wrong type.
         """
-        raise NotImplementedError
-
-
-    def __getitem__(self, key):
-        """
-        Return the value for the specified prefix.  If the given key is not in
-        the trie, raise a KeyError.  If the given key is of the wrong type,
-        raise a TypeError.
-        """
-        raise NotImplementedError
+        if not isinstance(key, str):
+            raise TypeError
+        elif len(key) >= 1:
+            self.value = value
+            self.children[key] = [key[:i] for i in range(1, len(key))]
+            typ = type(key)
 
     def __delitem__(self, key):
         """
