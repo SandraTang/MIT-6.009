@@ -18,14 +18,24 @@ class Trie:
         immutable ordered sequence.  Raise a TypeError if the given key is of
         the wrong type.
         """
-        if not isinstance(key, str):
-            raise TypeError
-        elif len(key) >= 1:
-            self.value = value
-            for i in range(1, len(key)):
-                self.children[key[:i]] = Trie()
-            # self.children[key] = [key[:i] for i in range(1, len(key))]
+        if self.typ == None:
             self.typ = type(key)
+        if not isinstance(key, self.typ):
+            raise TypeError
+        if len(key) == 0:
+            self.value = value
+        else:
+            # [:1] instead of [0] for tuples
+            if key[:1] in self.children:
+                # recursive statement
+                (self.children[key[:1]])[key[1:]] = value
+            else:
+                temp = Trie()
+                self.children[key[:1]] = temp
+                # temp.typ = type(key)
+                # recursive statement
+                temp[key[1:]] = value
+                temp.typ = type(key)
 
     def __getitem__(self, key):
         """
@@ -33,11 +43,15 @@ class Trie:
         the trie, raise a KeyError.  If the given key is of the wrong type,
         raise a TypeError.
         """
-        if key not in self.children.values():
-            raise KeyError
+        if len(key) == 0:
+            return self.value
+        # if len >= 1
+        # if gone down entire path, no word
         if type(key) != self.typ:
-            return TypeError
-        return self.children[key]
+            raise TypeError
+        if key[:1] not in self.children.keys():
+            raise KeyError
+        return (self.children[key[:1]])[key[1:]]
 
     def __delitem__(self, key):
         """
@@ -45,27 +59,50 @@ class Trie:
         the trie, raise a KeyError.  If the given key is of the wrong type,
         raise a TypeError.
         """
-        if key not in self.children.values():
-            raise KeyError
-        if type(key) != self.typ:
-            return TypeError
-        del self.children["key"]
+        if self.typ == None:
+            self.typ = type(key)
+        if not isinstance(key, self.typ):
+            raise TypeError
+        if len(key) == 0:
+            self.value = None
+        else:
+            # [:1] instead of [0] for tuples
+            if key[:1] in self.children:
+                # recursive statement
+                (self.children[key[:1]])[key[1:]] = None
+            else:
+                temp = Trie()
+                self.children[key[:1]] = temp
+                temp.typ = type(key)
+                # recursive statement
+                temp[key[1:]] = None
+        # if key not in self.children.values():
+        #     raise KeyError
+        # if type(key) != self.typ:
+        #     return TypeError
+        # del self.children["key"]
 
     def __contains__(self, key):
         """
         Is key a key in the trie? return True or False.
         """
         # hint - repeats previous code; use other functions
-        # does self.children[key] count as using __getitem__
-        return key in self.children and self.children[key] != None
+        try:
+            return self[key] != None
+        except:
+            return False
 
     def __iter__(self):
         """
         Generator of (key, value) pairs for all keys/values in this trie and
         its children.  Must be a generator!
         """
-        for key, value in self.children.items():
-            yield (key, value)
+        def help_iter(t):
+            for key, value in t.children.items():
+                if self[key] == None:
+                    yield help_iter(value)
+                yield (key, t[key])
+        return help_iter(self)
 
 
 def make_word_trie(text):
@@ -74,7 +111,14 @@ def make_word_trie(text):
     words in the text, and whose values are the number of times the associated
     word appears in the text
     """
-    raise NotImplementedError
+    t = Trie()
+    sentences = tokenize_sentences(text)
+    for sentence in sentences:
+        words = sentence.split()
+        for word in words:
+            if word in t:
+                print()
+    return t
 
 
 def make_phrase_trie(text):
