@@ -179,20 +179,19 @@ def autocomplete(trie, prefix, max_count=None):
 
     # find
     lis = []
-    for key, value in trie:
-        # ba --> bat
-        if isinstance(trie, str):
+    if isinstance(trie, str):
+        for key, value in trie:
             if prefix in key:
                 lis.append((key, value))
-        # (1, 2, --> (1, 2, 3)
-        # (1, 2) --> (1, 2)
-        # BUT NOT (1, 2 --> (1, 20
-        elif str(prefix)[:-1]+"," in key or prefix in key:
+    else:
+        if str(prefix)[:-1]+"," in key or prefix in key:
             lis.append((key, value))
+    
     # return any list of most frequent keys 
     # beginning with prefix (len == max_count)
     # or all (if less than max_count in trie)
-    lis.sort(key=lambda x: x[1])
+    lis.sort(key=lambda x: x[1], reverse = True)
+    return lis[:max_count]
 
 
 def autocorrect(trie, prefix, max_count=None):
