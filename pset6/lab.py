@@ -142,7 +142,6 @@ def make_word_trie(text):
                 t[word] = 1
     return t
 
-
 def make_phrase_trie(text):
     """
     Given a piece of text as a single string, create a Trie whose keys are the
@@ -159,7 +158,6 @@ def make_phrase_trie(text):
             t[words] = 1
     return t
 
-
 def autocomplete(trie, prefix, max_count=None):
     """
     Return the list of the most-frequently occurring elements that start with
@@ -173,22 +171,19 @@ def autocomplete(trie, prefix, max_count=None):
     if not isinstance(prefix, type(trie.typ)):
         raise TypeError
     # prefix not in the trie
-    if trie.get_trie(prefix) == [] or trie.get_trie(prefix).children == {}:
+    if trie.get_trie(prefix[:-1]) == [] or trie.get_trie(prefix[:-1]).children == {}:
     # if prefix not in trie:
         return []
     # build pre-list
     lis = []
     for key, value in trie:
-        if isinstance(key, str):
-            if prefix in key:
-                lis.append((key, value))
-        elif prefix in key or str(prefix)[:-1]+"," in key:
+        if prefix == str(key)[:len(prefix)]:
             lis.append((key, value))
     # return any list of most frequent keys 
     # beginning with prefix (len == max_count)
     # or all (if less than max_count in trie)
     if max_count == None:
-        return lis
+        return [word for word, v in lis]
     else:
         lis.sort(key=lambda x: x[1], reverse = True)
         return [word for word, v in lis[:max_count]]
@@ -202,7 +197,6 @@ def autocorrect(trie, prefix, max_count=None):
     edits of the given word as well, up to max_count total elements.
     """
     raise NotImplementedError
-
 
 def word_filter(trie, pattern):
     """
