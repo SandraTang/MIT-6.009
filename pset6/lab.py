@@ -67,7 +67,7 @@ class Trie:
             raise TypeError
         if key[:1] not in self.children.keys():
             return []
-        return (self.children[key[:1]])[key[1:]]
+        return (self.children[key[:1]]).get_trie(key[1:])
 
     def __delitem__(self, key):
         """
@@ -169,30 +169,29 @@ def autocomplete(trie, prefix, max_count=None):
     Raise a TypeError if the given prefix is of an inappropriate type for the
     trie.
     """
-    # REMOVED -- COVERED IN GET_TRIE
     # wrong type
     if not isinstance(prefix, type(trie.typ)):
         raise TypeError
     # prefix not in the trie
-    if prefix not in trie:
+    if trie.get_trie(prefix) == [] or trie.get_trie(prefix).children == {}:
+    # if prefix not in trie:
         return []
-
-    # find
+    # build pre-list
     lis = []
-    if isinstance(trie, str):
-        for key, value in trie:
+    for key, value in trie:
+        if isinstance(key, str):
             if prefix in key:
                 lis.append((key, value))
-    else:
-        if str(prefix)[:-1]+"," in key or prefix in key:
+        elif prefix in key or str(prefix)[:-1]+"," in key:
             lis.append((key, value))
-    
     # return any list of most frequent keys 
     # beginning with prefix (len == max_count)
     # or all (if less than max_count in trie)
-    lis.sort(key=lambda x: x[1], reverse = True)
-    return lis[:max_count]
-
+    if max_count == None:
+        return lis
+    else:
+        lis.sort(key=lambda x: x[1], reverse = True)
+        return [word for word, v in lis[:max_count]]
 
 def autocorrect(trie, prefix, max_count=None):
     """
