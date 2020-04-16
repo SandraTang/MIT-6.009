@@ -19,8 +19,8 @@ class Trie:
         the wrong type.
         """
         if self.typ == None:
-            self.typ = type(key)
-        if not isinstance(key, self.typ):
+            self.typ = key[0:0]
+        if not isinstance(key, type(self.typ)):
             raise TypeError
         if len(key) == 0:
             self.value = value
@@ -35,7 +35,7 @@ class Trie:
                 # temp.typ = type(key)
                 # recursive statement
                 temp[key[1:]] = value
-                temp.typ = type(key)
+                temp.typ = key[0:0]
 
     def __getitem__(self, key):
         """
@@ -47,10 +47,26 @@ class Trie:
             return self.value
         # if len >= 1
         # if gone down entire path, no word
-        if type(key) != self.typ:
+        if type(key) != type(self.typ):
             raise TypeError
         if key[:1] not in self.children.keys():
             raise KeyError
+        return (self.children[key[:1]])[key[1:]]
+
+    def get_trie(self, key):
+        """
+        Return the value for the specified prefix.  If the given key is not in
+        the trie, raise a KeyError.  If the given key is of the wrong type,
+        raise a TypeError.
+        """
+        if len(key) == 0:
+            return self
+        # if len >= 1
+        # if gone down entire path, no word
+        if type(key) != type(self.typ):
+            raise TypeError
+        if key[:1] not in self.children.keys():
+            return []
         return (self.children[key[:1]])[key[1:]]
 
     def __delitem__(self, key):
@@ -60,9 +76,11 @@ class Trie:
         raise a TypeError.
         """
         if self.typ == None:
-            self.typ = type(key)
-        if not isinstance(key, self.typ):
+            self.typ = key[0:0]
+        if not isinstance(key, type(self.typ)):
             raise TypeError
+        if self[key] == None:
+            raise KeyError
         if len(key) == 0:
             self.value = None
         else:
@@ -73,7 +91,7 @@ class Trie:
             else:
                 temp = Trie()
                 self.children[key[:1]] = temp
-                temp.typ = type(key)
+                temp.typ = key[0:0]
                 # recursive statement
                 temp[key[1:]] = None
         # if key not in self.children.values():
@@ -97,13 +115,15 @@ class Trie:
         Generator of (key, value) pairs for all keys/values in this trie and
         its children.  Must be a generator!
         """
-        def help_iter(t):
-            for key, value in t.children.items():
-                if self[key] == None:
-                    yield help_iter(value)
-                yield (key, t[key])
-        return help_iter(self)
-
+        def help_iter(tree, subword):
+            # base case
+            if tree.value != None:
+                yield (subword, tree.value)
+            # recursive
+            for key, val in tree.children.items():
+                yield from help_iter(val, subword+key)
+        # self.typ = empty of same type
+        yield from help_iter(self, self.typ)
 
 def make_word_trie(text):
     """
@@ -117,7 +137,9 @@ def make_word_trie(text):
         words = sentence.split()
         for word in words:
             if word in t:
-                print()
+                t[word] = t[word] + 1
+            else:
+                t[word] = 1
     return t
 
 
@@ -127,7 +149,15 @@ def make_phrase_trie(text):
     sentences in the text (as tuples of individual words) and whose values are
     the number of times the associated sentence appears in the text.
     """
-    raise NotImplementedError
+    t = Trie()
+    sentences = tokenize_sentences(text)
+    for sentence in sentences:
+        words = tuple(sentence.split())
+        if words in t:
+            t[words] = t[words] + 1
+        else:
+            t[words] = 1
+    return t
 
 
 def autocomplete(trie, prefix, max_count=None):
@@ -139,7 +169,30 @@ def autocomplete(trie, prefix, max_count=None):
     Raise a TypeError if the given prefix is of an inappropriate type for the
     trie.
     """
-    raise NotImplementedError
+    # REMOVED -- COVERED IN GET_TRIE
+    # wrong type
+    if not isinstance(prefix, type(trie.typ)):
+        raise TypeError
+    # prefix not in the trie
+    if prefix not in trie:
+        return []
+
+    # find
+    lis = []
+    for key, value in trie:
+        # ba --> bat
+        if isinstance(trie, str):
+            if prefix in key:
+                lis.append((key, value))
+        # (1, 2, --> (1, 2, 3)
+        # (1, 2) --> (1, 2)
+        # BUT NOT (1, 2 --> (1, 20
+        elif str(prefix)[:-1]+"," in key or prefix in key:
+            lis.append((key, value))
+    # return any list of most frequent keys 
+    # beginning with prefix (len == max_count)
+    # or all (if less than max_count in trie)
+    lis.sort(key=lambda x: x[1])
 
 
 def autocorrect(trie, prefix, max_count=None):
