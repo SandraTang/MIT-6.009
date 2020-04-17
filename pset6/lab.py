@@ -167,18 +167,17 @@ def autocomplete(trie, prefix, max_count=None):
     Raise a TypeError if the given prefix is of an inappropriate type for the
     trie.
     """
+    # print(trie.children.keys())
     # wrong type
     if not isinstance(prefix, type(trie.typ)):
         raise TypeError
-    # prefix not in the trie
-    if trie.get_trie(prefix[:-1]) == [] or trie.get_trie(prefix[:-1]).children == {}:
-    # if prefix not in trie:
-        return []
+
     # build pre-list
     lis = []
-    for key, value in trie:
-        if prefix == str(key)[:len(prefix)]:
-            lis.append((key, value))
+    prefix_trie = trie.get_trie(prefix)
+    for key, value in prefix_trie:
+        lis.append((prefix+key, value))
+
     # return any list of most frequent keys 
     # beginning with prefix (len == max_count)
     # or all (if less than max_count in trie)
@@ -196,7 +195,41 @@ def autocorrect(trie, prefix, max_count=None):
     fewer than max_count elements, include the most-frequently-occurring valid
     edits of the given word as well, up to max_count total elements.
     """
-    raise NotImplementedError
+    lis = autocomplete(trie, prefix, max_count)
+    if len(lis) == max_count or lis == None:
+        return lis
+    else:
+        lis_set = set(lis)
+        lis_edits = set()
+        lis_valid_edits = set()
+        alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+        # make possible editsac
+        for i in range(0, len(prefix)):
+            # single character deletion
+            lis_edits.add(prefix[:i]+prefix[i+1:])
+            # two-character transpose
+            lis_edits.add(prefix[:i]+prefix[i+1:i+2]+prefix[i:i+1]+prefix[i+2:])
+            # alphabet-dependent
+            for char in alphabet:
+                # single character insertion
+                lis_edits.add(prefix[:i]+char+prefix[i:])
+                # single character replacement
+                lis_edits.add(prefix[:i]+char+prefix[i+1:])
+        valid = set((key for key, value in trie))
+        valid_dict = {key: value for key, value in trie}
+        # print()
+        # print("valid", valid)
+        # print("edits", lis_edits)
+        for edit in lis_edits:
+            if edit in valid and edit not in lis_valid_edits and edit not in lis_set:
+                lis_valid_edits.add(edit)
+        lis_valid_edits = list(lis_valid_edits)
+        lis_valid_edits.sort(key=lambda x: valid_dict[x], reverse = True)
+        if max_count == None:
+            return lis + lis_valid_edits
+        else:
+            return lis + [word for word in lis_valid_edits[:max_count-len(lis)]]
+
 
 def word_filter(trie, pattern):
     """
