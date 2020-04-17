@@ -230,7 +230,6 @@ def autocorrect(trie, prefix, max_count=None):
         else:
             return lis + [word for word in lis_valid_edits[:max_count-len(lis)]]
 
-
 def word_filter(trie, pattern):
     """
     Return list of (word, freq) for all words in trie that match pattern.
@@ -239,7 +238,26 @@ def word_filter(trie, pattern):
          ? matches any single character,
          otherwise char in pattern char must equal char in word.
     """
-    raise NotImplementedError
+    def recursive_filter(trie, pattern, subword):
+        # base cases
+        if trie.children == {} or pattern == '':
+            return []
+        if pattern == '*':
+            return [(subword+key, trie[key]) for key, value in trie]
+        # recursive cases
+        if pattern[0] == '?':
+            for key, value in trie.children.items():
+                return [key] + recursive_filter(value, pattern[1:], subword)
+        elif pattern[0] == '*':
+            for key, value in trie.children:
+                return [key] + recursive_filter(value, pattern[1:], subword)
+        else:
+            # pattern is some character
+            for key, value in trie.children:
+                if key == pattern[0]:
+                    return [key] + recursive_filter(value, pattern[1:], subword)
+    return recursive_filter(trie, pattern, '')
+
 
 
 # you can include test cases of your own in the block below.
