@@ -1,7 +1,6 @@
 # NO ADDITIONAL IMPORTS!
 from text_tokenize import tokenize_sentences
 
-
 class Trie:
     def __init__(self):
         # set value, children, type
@@ -230,7 +229,7 @@ def autocorrect(trie, prefix, max_count=None):
         else:
             return lis + [word for word in lis_valid_edits[:max_count-len(lis)]]
 
-def word_filter(trie, pattern):
+def word_filter(trie, pattern, subword = ''):
     """
     Return list of (word, freq) for all words in trie that match pattern.
     pattern is a string, interpreted as explained below:
@@ -238,28 +237,28 @@ def word_filter(trie, pattern):
          ? matches any single character,
          otherwise char in pattern char must equal char in word.
     """
-    def recursive_filter(trie, pattern, subword):
-        # base cases
-        if trie.children == {} or pattern == '':
-            return []
-        if pattern == '*':
-            return [(subword+key, trie[key]) for key, value in trie]
-        # recursive cases
-        if pattern[0] == '?':
-            for key, value in trie.children.items():
-                return [key] + recursive_filter(value, pattern[1:], subword)
+    result = []
+    # base case - pattern match, valid value
+    if pattern == '':
+        if trie.value != None:
+            result.append((subword, trie.value))
+        return result
+    # recursive cases
+    # two cases of '*' using up or not using up letter
+    # not use up letter
+    if pattern[0] == '*':
+        result = result + word_filter(trie, pattern[1:], subword)
+    # check if ? or a fit otherwise try not using up
+    for key, value in trie.children.items():
+        if pattern[0] == '?' or pattern[0] == key:
+             result = result + word_filter(value, pattern[1:], subword+key)
         elif pattern[0] == '*':
-            for key, value in trie.children:
-                return [key] + recursive_filter(value, pattern[1:], subword)
-        else:
-            # pattern is some character
-            for key, value in trie.children:
-                if key == pattern[0]:
-                    return [key] + recursive_filter(value, pattern[1:], subword)
-    return recursive_filter(trie, pattern, '')
-
-
+            # use up letter
+             result = result + word_filter(value, pattern, subword+key)
+    # set for no repeats
+    return list(set(result))
 
 # you can include test cases of your own in the block below.
 if __name__ == '__main__':
-    pass
+    with open("11-0.txt", encoding="utf-8") as f:
+        pass
