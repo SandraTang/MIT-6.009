@@ -72,16 +72,21 @@ def parse(tokens):
             left = 1
             right = 0
             while i < len(sub):
-                print('IR', i, result)
+                # print('IR', i, result)
                 t = sub[i]
                 if t == '(':
                     left += 1
-                    print(i, sub[i:])
+                    # print(i, sub[i:])
                     s, end = parse_expression(i, sub[i:])
-                    print("SE", s, end)
+                    # print("SE", s, end)
                     result.append(s)
                     i = end
-                    t = sub[i]
+                    # print('>>>', i, sub, len(sub))
+                    if i == len(sub):
+                        end = i-1
+                        break
+                    else:
+                        t = sub[i]
                 elif t == ')':
                     right += 1
                     i += 1
@@ -89,7 +94,7 @@ def parse(tokens):
                     result.append(convert(t))
                     i += 1
                 if left == right:
-                    print('LR', left, right, i, index, sub)
+                    # print('LR', left, right, i, index, sub)
                     end = i-1
                     break
             return (result, end+1+index)
