@@ -52,7 +52,6 @@ def parse(tokens):
     Arguments:
         tokens (list): a list of strings representing tokens
     """
-    print(tokens)
     if tokens.count('(') != tokens.count(')'):
         raise SyntaxError
     def convert(thing):
@@ -111,9 +110,23 @@ def parse(tokens):
             return (result, end+1+index)
     return parse_expression(0, tokens)[0]
 
+def mult(lis):
+    prod = 1
+    for i in lis:
+        prod *= i
+    return prod
+
+def div(lis):
+    quo = lis[0]
+    for i in lis[1:]:
+        quo /= i
+    return quo
+
 carlae_builtins = {
     '+': sum,
     '-': lambda args: -args[0] if len(args) == 1 else (args[0] - sum(args[1:])),
+    '*': mult, 
+    '/': div
 }
 
 
@@ -126,7 +139,21 @@ def evaluate(tree):
         tree (type varies): a fully parsed expression, as the output from the
                             parse function
     """
-    raise NotImplementedError
+    # not list
+    if not isinstance(tree, list):
+        return tree
+    # list
+    if tree[0] in carlae_builtins.keys():
+        # if something is a list
+        if not all(not isinstance(item, list) for item in tree):
+            for index, item in enumerate(tree):
+                if isinstance(item, list):
+                    tree[index] = evaluate(tree[index])
+        # if all numbers
+        result = carlae_builtins[tree[0]](tree[1:])
+    else:
+        raise EvaluationError
+    return result
 
 
 if __name__ == '__main__':
@@ -135,5 +162,7 @@ if __name__ == '__main__':
 
     # uncommenting the following line will run doctests from above
     # doctest.testmod()
-
-    pass
+    inp = ''
+    while (inp != 'QUIT'):
+        inp = input("Input: ")
+        print("Output:", evaluate(inp))
