@@ -23,19 +23,22 @@ def tokenize(source):
                       expression
     """
     lines = source.splitlines()
-    new = ''
-    pre = ''
+    new = pre = ''
     chars = ('(', ')', ' ')
     for line in lines:
+        new += ' '
         for c in line:
             if c == ';':
                 break
             if c in chars:
                 new += pre
                 pre = ''
-                new += " " + c + " "
+                new += ' ' + c + ' '
             else:
                 pre += c
+        new += pre
+        pre = ''
+    new += pre
     return new.split()
 
 
@@ -49,6 +52,7 @@ def parse(tokens):
     Arguments:
         tokens (list): a list of strings representing tokens
     """
+    print(tokens)
     if tokens.count('(') != tokens.count(')'):
         raise SyntaxError
     def convert(thing):
@@ -61,9 +65,14 @@ def parse(tokens):
                 return thing
     def parse_expression(index, sub):
         # if first item is not '(' then must be standalone int, float, or var
+        if sub[0] == ')':
+            raise SyntaxError
         if sub[0] != '(':
             # return only item and index after last (0+1)
-            return (convert(sub[0]), 1)
+            if len(sub) == 1:
+                return (convert(sub[0]), len(sub))
+            else:
+                raise SyntaxError
         else:
             result = []
             # start at 1, assume first item is '('
@@ -97,6 +106,8 @@ def parse(tokens):
                     # print('LR', left, right, i, index, sub)
                     end = i-1
                     break
+                if right > left:
+                    raise SyntaxError
             return (result, end+1+index)
     return parse_expression(0, tokens)[0]
 
