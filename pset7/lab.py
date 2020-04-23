@@ -110,6 +110,28 @@ def parse(tokens):
             return (result, end+1+index)
     return parse_expression(0, tokens)[0]
 
+
+class Environments:
+    def __init__(self, name, parent):
+        self.variables = {}
+        self.name = name
+       self.parent = parent
+    def __setitem__(self, key, value):
+        self.variables[key] = value
+    def __getitem__(self, key):
+        if key in self.variables.keys():
+            return self.variables[key]
+        elif parent != None:
+            # go to parent environment
+            return parent[key]
+    def __delitem__(self, key):
+        del self.variables[key]
+    def __contains__(self, key):
+        return key in self.variables.keys()
+    def __iter__(self):
+        for key, value in self.variables.items():
+            yield key, value
+
 def mult(lis):
     prod = 1
     for i in lis:
@@ -151,6 +173,9 @@ def evaluate(tree):
                     tree[index] = evaluate(tree[index])
         # if all numbers
         result = carlae_builtins[tree[0]](tree[1:])
+    elif tree[0] == 'define':
+        if '(' not in tree[1] and ')' not in tree[1] and ' ' not in tree[1]:
+            # valid name
     else:
         raise EvaluationError
     return result
