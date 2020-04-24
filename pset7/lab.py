@@ -165,7 +165,7 @@ def evaluate(tree, environment = Environments("empty", Carlae)):
         tree (type varies): a fully parsed expression, as the output from the
                             parse function
     """
-    # print(tree, environment, [key for key in environment])
+    print(tree, environment, [key for key in environment])
     # not list
     if not isinstance(tree, list):
         if isinstance(tree, str):
@@ -187,11 +187,11 @@ def evaluate(tree, environment = Environments("empty", Carlae)):
             result = evaluate(result)
     elif tree[0] == 'define':
         if '(' not in tree[1] and ')' not in tree[1] and ' ' not in tree[1]:
-            environment[tree[1]] = tree[2]
             if isinstance(tree[2], list):
-                return evaluate(tree[2])
+                environment[tree[1]] = evaluate(tree[2])
             else:
-                return tree[2]
+                environment[tree[1]] = tree[2]
+            return environment[tree[1]]
     else:
         raise EvaluationError
     return result
@@ -209,11 +209,15 @@ if __name__ == '__main__':
     # while (inp != 'QUIT'):
     #     inp = input("Input: ")
     #     print("Output:", evaluate(inp))
-    t = "(define x (+ 2 3))"
-    print(t)
-    t = tokenize(t)
-    print(t)
-    t = parse(t)
-    print(t)
-    print(evaluate(t))
+    E = Environments('basic', Carlae)
+    trees = ["(define somevariable (+ 1 2))", "(+ 7 (* somevariable 2 somevariable))", "(define x 2)", 
+             "(define y x)", "(define x 3)", "x", "y"]
+    for t in trees:
+        print()
+        print(t)
+        t = tokenize(t)
+        print(t)
+        t = parse(t)
+        print(t)
+        print(evaluate(t))
 
