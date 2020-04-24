@@ -113,9 +113,9 @@ def parse(tokens):
 
 class Environments:
     def __init__(self, name, parent):
-        self.variables = {}
+        self.variables = carlae_builtins
         self.name = name
-        self.parent = parent
+        self.parent = None
     def __setitem__(self, key, value):
         self.variables[key] = value
     def __getitem__(self, key):
@@ -125,7 +125,7 @@ class Environments:
             # go to parent environment
             return self.parent[key]
         else: #parent == None
-            raise EvaluationError
+            raise NameError
     def __delitem__(self, key):
         del self.variables[key]
     def __contains__(self, key):
@@ -165,7 +165,7 @@ def evaluate(tree, environment = Environments("empty", Carlae)):
         tree (type varies): a fully parsed expression, as the output from the
                             parse function
     """
-    print(tree, environment, [key for key in environment])
+    # print(tree, environment, [key for key in environment])
     # not list
     if not isinstance(tree, list):
         if isinstance(tree, str):
@@ -187,7 +187,7 @@ def evaluate(tree, environment = Environments("empty", Carlae)):
             result = evaluate(result)
     elif tree[0] == 'define':
         if '(' not in tree[1] and ')' not in tree[1] and ' ' not in tree[1]:
-            if isinstance(tree[2], list):
+            if isinstance(tree[2], list) or isinstance(tree[2], str):
                 environment[tree[1]] = evaluate(tree[2])
             else:
                 environment[tree[1]] = tree[2]
@@ -210,8 +210,7 @@ if __name__ == '__main__':
     #     inp = input("Input: ")
     #     print("Output:", evaluate(inp))
     E = Environments('basic', Carlae)
-    trees = ["(define somevariable (+ 1 2))", "(+ 7 (* somevariable 2 somevariable))", "(define x 2)", 
-             "(define y x)", "(define x 3)", "x", "y"]
+    trees = ["(define spam x)", "eggs"]
     for t in trees:
         print()
         print(t)
