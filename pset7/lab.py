@@ -115,19 +115,21 @@ class Environments:
     def __init__(self, name, parent):
         self.variables = {}
         self.name = name
-       self.parent = parent
+        self.parent = parent
     def __setitem__(self, key, value):
         self.variables[key] = value
     def __getitem__(self, key):
         if key in self.variables.keys():
             return self.variables[key]
-        elif parent != None:
+        elif self.parent != None:
             # go to parent environment
-            return parent[key]
+            return self.parent[key]
+        else: #parent == None
+            raise EvaluationError
     def __delitem__(self, key):
         del self.variables[key]
     def __contains__(self, key):
-        return key in self.variables.keys()
+        return key in self.variables.keys() or key in self.parent
     def __iter__(self):
         for key, value in self.variables.items():
             yield key, value
@@ -151,8 +153,10 @@ carlae_builtins = {
     '/': div
 }
 
+Carlae = Environments("builtins", None)
+Carlae.variables = carlae_builtins
 
-def evaluate(tree):
+def evaluate(tree, environment = Environments("empty", Carlae)):
     """
     Evaluate the given syntax tree according to the rules of the carlae
     language.
@@ -161,25 +165,39 @@ def evaluate(tree):
         tree (type varies): a fully parsed expression, as the output from the
                             parse function
     """
+    # print(tree, environment, [key for key in environment])
     # not list
     if not isinstance(tree, list):
-        return tree
+        if isinstance(tree, str):
+            return environment[tree]
+        else:
+            return tree
     # list
     if tree[0] in carlae_builtins.keys():
-        # if something is a list
-        if not all(not isinstance(item, list) for item in tree):
-            for index, item in enumerate(tree):
-                if isinstance(item, list):
-                    tree[index] = evaluate(tree[index])
+        # contains list (needs recursive calls)
+        # if not all(not isinstance(item, list) for item in tree):
+        for index, item in enumerate(tree[1:]):
+            if isinstance(item, list):
+                tree[index+1] = evaluate(tree[index+1], environment)
+            elif isinstance(item, str):
+                tree[index+1] = environment[item]
         # if all numbers
         result = carlae_builtins[tree[0]](tree[1:])
+        if isinstance(result, list):
+            result = evaluate(result)
     elif tree[0] == 'define':
         if '(' not in tree[1] and ')' not in tree[1] and ' ' not in tree[1]:
-            # valid name
+            environment[tree[1]] = tree[2]
+            if isinstance(tree[2], list):
+                return evaluate(tree[2])
+            else:
+                return tree[2]
     else:
         raise EvaluationError
     return result
 
+def result_and_env(tree, environment = Environments("empty", Carlae)):
+    return (evaluate(tree, environment), environment)
 
 if __name__ == '__main__':
     # code in this block will only be executed if lab.py is the main file being
@@ -187,7 +205,15 @@ if __name__ == '__main__':
 
     # uncommenting the following line will run doctests from above
     # doctest.testmod()
-    inp = ''
-    while (inp != 'QUIT'):
-        inp = input("Input: ")
-        print("Output:", evaluate(inp))
+    # inp = ''
+    # while (inp != 'QUIT'):
+    #     inp = input("Input: ")
+    #     print("Output:", evaluate(inp))
+    t = "(define x (+ 2 3))"
+    print(t)
+    t = tokenize(t)
+    print(t)
+    t = parse(t)
+    print(t)
+    print(evaluate(t))
+
