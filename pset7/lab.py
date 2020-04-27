@@ -145,7 +145,8 @@ class Functions:
 		e = Environments(self.parent)
 		for i in range(len(pa)):
 			e[self.params[i]] = pa[i]
-		return evaluate(self.expr, e)
+		expr = list(self.expr)
+		return evaluate(expr, e)
 
 def evaluate(tree, environment = None):
 	"""
@@ -156,6 +157,7 @@ def evaluate(tree, environment = None):
 		tree (type varies): a fully parsed expression, as the output from the
 							parse function
 	"""
+	# print("TREE", tree)
 	print(tree, environment, environment.variables)
 	# default environment
 	if environment is None:
@@ -177,12 +179,19 @@ def evaluate(tree, environment = None):
 	# list (else)
 	# is a defined function
 	if tree[0] == 'define':
-		if '(' not in tree[1] and ')' not in tree[1] and ' ' not in tree[1]:
-			if isinstance(tree[2], list) or isinstance(tree[2], str):
-				environment[tree[1]] = evaluate(tree[2], environment)
-			else:
-				environment[tree[1]] = tree[2]
-			return environment[tree[1]]
+		# (define (square x) (* x x))
+		# (define square (lambda (x) (* x x)))
+		if isinstance(tree[1], list):
+			f = Functions(tree[1][1:], tree[2], environment)
+			environment[tree[1][0]] = f
+			return environment[tree[1][0]]
+		else:
+			if '(' not in tree[1] and ')' not in tree[1] and ' ' not in tree[1]:
+				if isinstance(tree[2], list) or isinstance(tree[2], str):
+					environment[tree[1]] = evaluate(tree[2], environment)
+				else:
+					environment[tree[1]] = tree[2]
+				return environment[tree[1]]
 	elif tree[0] == 'lambda':
 		f = Functions(tree[1], tree[2], environment)
 		return f
@@ -193,14 +202,14 @@ def evaluate(tree, environment = None):
 					tree[index+1] = evaluate(tree[index+1], environment)
 				elif isinstance(item, str):
 					tree[index+1] = environment[item]
-				else:
-					tree[index+1] = evaluate(tree[index+1], environment)
-			result = evaluate(tree[0], environment)(tree[1:])
+			# problems modifying tree?
+			# evaluation problem ??
+			return evaluate(tree[0], environment)(tree[1:])
 		except NameError:
 			raise NameError
 		except:
 			raise EvaluationError
-	return result
+	# return result
 
 def result_and_env(tree, environment = None):
 	if environment is None:
@@ -221,7 +230,13 @@ if __name__ == '__main__':
 	#     inp_new = parse(tokenize(inp))
 	#     print("Output:", evaluate(inp_new, e))
 	E = Environments()
-	trees = ["(define addN (lambda (n) (lambda (i) (+ i n))))", "((addN 9) ((addN 9) 3))"]
+	trees = ["(define (spam x) (lambda (y) (+ (* 2 x) (* y y))))", "(define (eggs x y) (spam x))", "((eggs 9 10) 2)", "(define x 20)", "(define y (eggs 8 7))", "(y 10)"]
+	# (define (spam x) (lambda (y) (+ (* 2 x) (* y y))))
+	# (define (eggs x y) (spam x))
+	# ((eggs 9 10) 2)
+	# (define x 20)
+	# (define y (eggs 8 7))
+	# (y 10)
 	for t in trees:
 		# print("T", t)
 		t = tokenize(t)
