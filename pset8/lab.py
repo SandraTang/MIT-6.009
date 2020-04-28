@@ -98,6 +98,24 @@ def div(lis):
 		quo /= i
 	return quo
 
+def car(X):
+	try:
+		return X[0].car
+	except:
+		raise EvaluationError
+
+def cdr(X):
+	try:
+		return X[0].cdr
+	except:
+		raise EvaluationError
+
+def cons(lis):
+	c1 = evaluate(lis[0])
+	c2 = evaluate(lis[1])
+	p = Pair(c1, c2)
+	return p
+
 carlae_builtins = {
 	'+': sum,
 	'-': lambda args: -args[0] if len(args) == 1 else (args[0] - sum(args[1:])),
@@ -111,8 +129,9 @@ carlae_builtins = {
 	'not': lambda lis: not lis[0],
 	'#t': True, 
 	'#f': False, 
-	'car': car(lis[0]),
-	'cdr': cdr(lis[0])
+	'car': car,
+	'cdr': cdr,
+	'cons': cons
 }
 
 class Environments:
@@ -158,23 +177,6 @@ class Functions:
 		for i in range(len(pa)):
 			e[self.params[i]] = pa[i]
 		return evaluate(self.expr, e)
-
-def cons(car, cdr, environment):
-	c1 = evaluate(car)
-	c2 = evaluate(cdr)
-	return Pair(c1, c2)
-
-def car(X):
-	try:
-		return X.car
-	except:
-		raise EvaluationError
-
-def cdr(X):
-	try:
-		return X.cdr
-	except:
-		raise EvaluationError
 
 class Pair: # aka cell
 	def __init__(self, car, cdr):
@@ -268,7 +270,7 @@ if __name__ == '__main__':
 	#     inp_new = parse(tokenize(inp))
 	#     print("Output:", evaluate(inp_new, e))
 	E = Environments()
-	trees = ['(define (fib n) (if (<= n 2) n (+ (fib (- n 1)) (fib (- n 2)))))', '(fib 6)']
+	trees = ['(cons 320983 13)', '(cdr (cons 3487947 199))']
 	for t in trees:
 		# print("T", t)
 		t = tokenize(t)
