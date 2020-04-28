@@ -69,6 +69,7 @@ def parse(tokens):
 			result = []
 			# start past first '('
 			index += 1
+			end = index
 			while tokens[index] != ')':
 				s, end = parse_expression(index)
 				result.append(s)
@@ -145,8 +146,7 @@ class Functions:
 		e = Environments(self.parent)
 		for i in range(len(pa)):
 			e[self.params[i]] = pa[i]
-		expr = list(self.expr)
-		return evaluate(expr, e)
+		return evaluate(self.expr, e)
 
 def evaluate(tree, environment = None):
 	"""
@@ -158,7 +158,7 @@ def evaluate(tree, environment = None):
 							parse function
 	"""
 	# print("TREE", tree)
-	print(tree, environment, environment.variables)
+	# print(tree, environment, environment.variables)
 	# default environment
 	if environment is None:
 		environment = Environments(Carlae)
@@ -179,32 +179,24 @@ def evaluate(tree, environment = None):
 	# list (else)
 	# is a defined function
 	if tree[0] == 'define':
-		# (define (square x) (* x x))
-		# (define square (lambda (x) (* x x)))
+		if len(tree) != 3:
+			raise EvaluationError
 		if isinstance(tree[1], list):
 			f = Functions(tree[1][1:], tree[2], environment)
 			environment[tree[1][0]] = f
 			return environment[tree[1][0]]
 		else:
-			if '(' not in tree[1] and ')' not in tree[1] and ' ' not in tree[1]:
-				if isinstance(tree[2], list) or isinstance(tree[2], str):
-					environment[tree[1]] = evaluate(tree[2], environment)
-				else:
-					environment[tree[1]] = tree[2]
-				return environment[tree[1]]
+			environment[tree[1]] = evaluate(tree[2], environment)
+			return environment[tree[1]]
 	elif tree[0] == 'lambda':
 		f = Functions(tree[1], tree[2], environment)
 		return f
 	else:
 		try:
+			new_tree = []
 			for index, item in enumerate(tree[1:]):
-				if isinstance(item, list):
-					tree[index+1] = evaluate(tree[index+1], environment)
-				elif isinstance(item, str):
-					tree[index+1] = environment[item]
-			# problems modifying tree?
-			# evaluation problem ??
-			return evaluate(tree[0], environment)(tree[1:])
+				new_tree.append(evaluate(tree[index+1], environment))
+			return evaluate(tree[0], environment)(new_tree)
 		except NameError:
 			raise NameError
 		except:
@@ -230,17 +222,18 @@ if __name__ == '__main__':
 	#     inp_new = parse(tokenize(inp))
 	#     print("Output:", evaluate(inp_new, e))
 	E = Environments()
-	trees = ["(define (spam x) (lambda (y) (+ (* 2 x) (* y y))))", "(define (eggs x y) (spam x))", "((eggs 9 10) 2)", "(define x 20)", "(define y (eggs 8 7))", "(y 10)"]
-	# (define (spam x) (lambda (y) (+ (* 2 x) (* y y))))
-	# (define (eggs x y) (spam x))
-	# ((eggs 9 10) 2)
-	# (define x 20)
-	# (define y (eggs 8 7))
-	# (y 10)
+	trees = ["(define (call x) (x))", "(call (lambda () 2))"]
+
+	# (call (lambda () 2))
+	# (define (spam) (call (lambda () 2)))
+	# (call spam)
+	# (call call)
+	# (call)
+
 	for t in trees:
 		# print("T", t)
 		t = tokenize(t)
-		# print("TOKEN", t)
+		print("TOKEN", t)
 		t = parse(t)
 		# print("PARSE", t)
 		print("EV", evaluate(t, E))
