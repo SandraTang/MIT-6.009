@@ -102,7 +102,17 @@ carlae_builtins = {
 	'+': sum,
 	'-': lambda args: -args[0] if len(args) == 1 else (args[0] - sum(args[1:])),
 	'*': mult, 
-	'/': div
+	'/': div, 
+	'=?': lambda lis: all(item == lis[0] for item in lis), 
+	'>': lambda lis: all(lis[i-1] > lis[i] for i in range(1, len(lis))), 
+	'>=': lambda lis: all(lis[i-1] >= lis[i] for i in range(1, len(lis))),
+	'<': lambda lis: all(lis[i-1] < lis[i] for i in range(1, len(lis))),
+	'<=': lambda lis: all(lis[i-1] <= lis[i] for i in range(1, len(lis))),
+	'not': lambda lis: not lis[0],
+	'#t': True, 
+	'#f': False, 
+	'car': car(lis[0]),
+	'cdr': cdr(lis[0])
 }
 
 class Environments:
@@ -149,6 +159,28 @@ class Functions:
 			e[self.params[i]] = pa[i]
 		return evaluate(self.expr, e)
 
+def cons(car, cdr, environment):
+	c1 = evaluate(car)
+	c2 = evaluate(cdr)
+	return Pair(c1, c2)
+
+def car(X):
+	try:
+		return X.car
+	except:
+		raise EvaluationError
+
+def cdr(X):
+	try:
+		return X.cdr
+	except:
+		raise EvaluationError
+
+class Pair: # aka cell
+	def __init__(self, car, cdr):
+		self.car = car
+		self.cdr = cdr
+
 def evaluate(tree, environment = None):
 	"""
 	Evaluate the given syntax tree according to the rules of the carlae
@@ -164,9 +196,8 @@ def evaluate(tree, environment = None):
 	if environment is None:
 		environment = Environments(Carlae)
 
-	# not list
+	# not list, handles variables
 	if not isinstance(tree, list):
-		# handles variables
 		if isinstance(tree, str):
 			if tree in environment:
 				return environment[tree]
@@ -174,11 +205,9 @@ def evaluate(tree, environment = None):
 				return carlae_builtins[tree]
 			else:
 				raise NameError
-		# handles returning single numbers
-		else:
+		else: # handles returning single numbers
 			return tree
-	# list (else)
-	# is a defined function
+	# list (else) is a defined function
 	if tree[0] == 'define':
 		if len(tree) != 3:
 			raise EvaluationError
@@ -192,6 +221,22 @@ def evaluate(tree, environment = None):
 	elif tree[0] == 'lambda':
 		f = Functions(tree[1], tree[2], environment)
 		return f
+	elif tree[0] == 'if':
+		cond = evaluate(tree[1], environment)
+		if cond:
+			return evaluate(tree[2], environment)
+		else:
+			return evaluate(tree[3], environment)
+	elif tree[0] == 'and':
+		for index, item in enumerate(tree[1:]):
+			if evaluate(tree[index+1], environment) == False:
+				return False
+		return True
+	elif tree[0] == 'or':
+		for index, item in enumerate(tree[1:]):
+			if evaluate(tree[index+1], environment) == True:
+				return True
+		return False
 	else:
 		try:
 			new_tree = []
@@ -223,18 +268,11 @@ if __name__ == '__main__':
 	#     inp_new = parse(tokenize(inp))
 	#     print("Output:", evaluate(inp_new, e))
 	E = Environments()
-	trees = ["(define (call x) (x))", "(call (lambda () 2))"]
-
-	# (call (lambda () 2))
-	# (define (spam) (call (lambda () 2)))
-	# (call spam)
-	# (call call)
-	# (call)
-
+	trees = ['(define (fib n) (if (<= n 2) n (+ (fib (- n 1)) (fib (- n 2)))))', '(fib 6)']
 	for t in trees:
 		# print("T", t)
 		t = tokenize(t)
-		print("TOKEN", t)
+		# print("TOKEN", t)
 		t = parse(t)
 		# print("PARSE", t)
 		print("EV", evaluate(t, E))
