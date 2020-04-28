@@ -87,34 +87,114 @@ def parse(tokens):
 		raise SyntaxError
 
 def mult(lis):
+	"""
+	Given a list. 
+	Multiplies numbers in list. 
+	Returns product. 
+	"""
 	prod = 1
 	for i in lis:
 		prod *= i
 	return prod
 
 def div(lis):
+	"""
+	Given list. 
+	Divides first number by subsequent numbers. 
+	Returns quotient. 
+	"""
 	quo = lis[0]
 	for i in lis[1:]:
 		quo /= i
 	return quo
 
 def car(X):
+	"""
+	Given list containing Pair object. 
+	Returns first number of Pair object. 
+	Raises Evaluation Error if item is not a Pair object. 
+	"""
 	try:
 		return X[0].car
 	except:
 		raise EvaluationError
 
 def cdr(X):
+	"""
+	Given list containing Pair object. 
+	Returns cdr of Pair object. 
+	Raises Evaluation Error if item is not a Pair object. 
+	"""
 	try:
 		return X[0].cdr
 	except:
 		raise EvaluationError
 
 def cons(lis):
+	"""
+	Given a list of two values. 
+	Returns a Pair object. 
+	"""
 	c1 = evaluate(lis[0])
 	c2 = evaluate(lis[1])
 	p = Pair(c1, c2)
 	return p
+
+def list_function(lis):
+	"""
+	Given a list of values. 
+	Returns a linked list (Pair object) holding those values. 
+	"""
+	result = None
+	lis.reverse()
+	for item in lis:
+		result = Pair(item, result)
+	return result
+
+def length(lis):
+	"""
+	Given list containing Pair object. 
+	Returns length of linked list the Pair object represents. 
+	"""
+	try:
+		count = 0
+		thing = lis[0]
+		while thing != None:
+			count += 1
+			thing = thing.cdr
+		return count
+	except: # not a linked list, not Pair
+		raise EvaluationError
+
+def element_at_index(inp):
+	"""
+	Given list contining Pair object and index. 
+	Returns value at given index. 
+	"""
+	lis = inp[0]
+	index = inp[1]
+	i = 0
+	middleman = lis
+	while i < index:
+		middleman = middleman.cdr
+		i += 1
+	return middleman.car
+
+def concat(lis):
+	"""
+	Given list of Pair objects. 
+	Returns one Pair object representing all values in given Pair objects. 
+	"""
+	if lis == None:
+		return None # empty list
+	all_lists = lis.copy()
+	all_lists.reverse()
+	result = None
+	for lists in all_lists:
+		lists.reverse()
+		for item in lists:
+			result = Pair(item, result)
+	return result
 
 carlae_builtins = {
 	'+': sum,
@@ -131,7 +211,12 @@ carlae_builtins = {
 	'#f': False, 
 	'car': car,
 	'cdr': cdr,
-	'cons': cons
+	'cons': cons,
+	'nil': None, #is this ok? 
+	'list': list_function,
+	'length': length,
+	'elt-at-index': element_at_index, 
+	'concat': concat
 }
 
 class Environments:
@@ -270,12 +355,13 @@ if __name__ == '__main__':
 	#     inp_new = parse(tokenize(inp))
 	#     print("Output:", evaluate(inp_new, e))
 	E = Environments()
-	trees = ['(cons 320983 13)', '(cdr (cons 3487947 199))']
+	trees = ['(concat (cons 9 (cons 8 (cons 7 nil))))']
 	for t in trees:
 		# print("T", t)
 		t = tokenize(t)
 		# print("TOKEN", t)
 		t = parse(t)
 		# print("PARSE", t)
-		print("EV", evaluate(t, E))
+		thing = evaluate(t, E)
+		print("EV", thing)
 		print()
