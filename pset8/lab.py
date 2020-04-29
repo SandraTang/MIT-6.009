@@ -180,21 +180,34 @@ def element_at_index(inp):
 		i += 1
 	return middleman.car
 
-def concat(lis):
+def concat(lists):
 	"""
 	Given list of Pair objects. 
 	Returns one Pair object representing all values in given Pair objects. 
 	"""
-	if lis == None:
-		return None # empty list
-	all_lists = lis.copy()
-	all_lists.reverse()
-	result = None
-	for lists in all_lists:
-		lists.reverse()
-		for item in lists:
-			result = Pair(item, result)
-	return result
+	new_lis = lists[0].copy()
+	lis_num = 1
+	while lis_num < len(lists)
+		item = lists[lis_num-1]
+		while item != None:
+			item = item.cdr
+		item = lists[lis_num]
+		lis_num += 1
+	return new_lis
+	# if lists == None:
+	# 	return None # empty list
+	# all_lis = lists.copy()
+	# all_lis.reverse()
+	# result = None
+	# # replace last item's cdr with new Pair object
+	# for lis in all_lis:
+	# 	last = lists.cdr
+	# 	while 
+
+	# 	lists.reverse()
+	# 	for item in lists:
+	# 		result = Pair(item, result)
+	# return result
 
 carlae_builtins = {
 	'+': sum,
