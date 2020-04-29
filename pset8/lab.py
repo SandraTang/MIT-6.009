@@ -185,29 +185,39 @@ def concat(lists):
 	Given list of Pair objects. 
 	Returns one Pair object representing all values in given Pair objects. 
 	"""
-	new_lis = lists[0].copy()
+	print(lists)
+	if len(lists) == 0:
+		return None
+	new_lis = lists[0]
 	lis_num = 1
-	while lis_num < len(lists)
-		item = lists[lis_num-1]
-		while item != None:
-			item = item.cdr
-		item = lists[lis_num]
+	while new_lis == None:
+		new_lis = lists[lis_num]
+		lis_num += 1
+	while lis_num < len(lists):
+		if lists[lis_num-1] != None:
+			item = lists[lis_num-1]
+			print('begin', item)
+			while item.cdr != None:
+				item = item.cdr
+			item.cdr = lists[lis_num]
+			print('here', item.cdr)
 		lis_num += 1
 	return new_lis
-	# if lists == None:
-	# 	return None # empty list
-	# all_lis = lists.copy()
-	# all_lis.reverse()
-	# result = None
-	# # replace last item's cdr with new Pair object
-	# for lis in all_lis:
-	# 	last = lists.cdr
-	# 	while 
 
-	# 	lists.reverse()
-	# 	for item in lists:
-	# 		result = Pair(item, result)
-	# return result
+def map_function(func, lis):
+	"""
+	Takes function and list. 
+	Returns NEW list containing results of applying given function to each element of given list. 
+	"""
+	if len(lis) == 0:
+		return None
+	lis_num = 0
+	while lis[lis_num] == 0:
+		
+	ca = lis[lis_num].car
+	cd = lis[lis_num].cdr
+	result = cons([ca, cd])
+	while cdr != None:
 
 carlae_builtins = {
 	'+': sum,
@@ -229,7 +239,8 @@ carlae_builtins = {
 	'list': list_function,
 	'length': length,
 	'elt-at-index': element_at_index, 
-	'concat': concat
+	'concat': concat,
+	'map': map_function
 }
 
 class Environments:
@@ -368,7 +379,16 @@ if __name__ == '__main__':
 	#     inp_new = parse(tokenize(inp))
 	#     print("Output:", evaluate(inp_new, e))
 	E = Environments()
-	trees = ['(concat (cons 9 (cons 8 (cons 7 nil))))']
+	trees = ['(define x (list 1))', '(concat x x x)']
+	# 
+	# 
+	# 
+	# 
+	# 
+	# x
+	# (concat 7 8 9)
+	# (concat (cons 1 2) (cons 3 4))
+
 	for t in trees:
 		# print("T", t)
 		t = tokenize(t)
@@ -377,4 +397,7 @@ if __name__ == '__main__':
 		# print("PARSE", t)
 		thing = evaluate(t, E)
 		print("EV", thing)
+		while thing != None:
+			print(thing.car)
+			thing = thing.cdr
 		print()
