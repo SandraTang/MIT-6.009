@@ -180,29 +180,34 @@ def element_at_index(inp):
 		i += 1
 	return middleman.car
 
+def copier(lis):
+	"""
+	Creates copies of lists. 
+	"""
+	if cdr([lis]) == None:
+		return cons([car([lis]), cdr([lis])])
+	return cons([car([lis]), copier(cdr([lis]))])
+
 def concat(lists):
 	"""
 	Given list of Pair objects. 
 	Returns one Pair object representing all values in given Pair objects. 
 	"""
-	print(lists)
-	if len(lists) == 0:
+	# edge cases - no lists or all lists None
+	if len(lists) == 0 or all(lis == None for lis in lists):
 		return None
-	new_lis = lists[0]
-	lis_num = 1
-	while new_lis == None:
-		new_lis = lists[lis_num]
-		lis_num += 1
-	while lis_num < len(lists):
-		if lists[lis_num-1] != None:
-			item = lists[lis_num-1]
-			print('begin', item)
-			while item.cdr != None:
-				item = item.cdr
-			item.cdr = lists[lis_num]
-			print('here', item.cdr)
-		lis_num += 1
-	return new_lis
+	# filter out None lists
+	valid_lists = [lis for lis in lists if lis != None]
+	# valid lists here on out
+	# turn all lists into copies
+	copied_lists = [copier(lis) for lis in valid_lists]
+	# first list
+	# subsequent lists
+	for lis in copied_lists[1:]:
+		current = lis
+		while cdr([current]) != None:
+			current = cdr([current])
+
 
 def map_function(func, lis):
 	"""
@@ -213,11 +218,18 @@ def map_function(func, lis):
 		return None
 	lis_num = 0
 	while lis[lis_num] == 0:
-		
+
 	ca = lis[lis_num].car
 	cd = lis[lis_num].cdr
 	result = cons([ca, cd])
 	while cdr != None:
+
+def filt(func, lis):
+	"""
+	Takes function and list. 
+	Returns NEW list containing only TRUE elements. 
+	"""
+	pass
 
 carlae_builtins = {
 	'+': sum,
@@ -240,7 +252,9 @@ carlae_builtins = {
 	'length': length,
 	'elt-at-index': element_at_index, 
 	'concat': concat,
-	'map': map_function
+	'map': map_function,
+	'filter': filt,
+
 }
 
 class Environments:
