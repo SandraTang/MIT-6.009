@@ -199,14 +199,18 @@ def concat(lists):
 	# filter out None lists
 	valid_lists = [lis for lis in lists if lis != None]
 	# valid lists here on out
-	# turn all lists into copies
 	copied_lists = [copier(lis) for lis in valid_lists]
-	# first list
-	# subsequent lists
-	for lis in copied_lists[1:]:
-		current = lis
+	# concatenate
+	lis_num = 0
+	current = copied_lists[lis_num]
+	while lis_num < len(copied_lists)-1:
 		while cdr([current]) != None:
 			current = cdr([current])
+		# cdr = None
+		lis_num += 1
+		current.cdr = copied_lists[lis_num]
+		current = current.cdr
+	return copied_lists[0]
 
 
 def map_function(func, lis):
@@ -214,15 +218,15 @@ def map_function(func, lis):
 	Takes function and list. 
 	Returns NEW list containing results of applying given function to each element of given list. 
 	"""
-	if len(lis) == 0:
-		return None
-	lis_num = 0
-	while lis[lis_num] == 0:
+	# if len(lis) == 0:
+	# 	return None
+	# lis_num = 0
+	# while lis[lis_num] == 0:
 
-	ca = lis[lis_num].car
-	cd = lis[lis_num].cdr
-	result = cons([ca, cd])
-	while cdr != None:
+	# ca = lis[lis_num].car
+	# cd = lis[lis_num].cdr
+	# result = cons([ca, cd])
+	# while cdr != None:
 
 def filt(func, lis):
 	"""
@@ -394,15 +398,6 @@ if __name__ == '__main__':
 	#     print("Output:", evaluate(inp_new, e))
 	E = Environments()
 	trees = ['(define x (list 1))', '(concat x x x)']
-	# 
-	# 
-	# 
-	# 
-	# 
-	# x
-	# (concat 7 8 9)
-	# (concat (cons 1 2) (cons 3 4))
-
 	for t in trees:
 		# print("T", t)
 		t = tokenize(t)
