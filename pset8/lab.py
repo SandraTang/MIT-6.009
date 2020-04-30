@@ -212,28 +212,39 @@ def concat(lists):
 		current = current.cdr
 	return copied_lists[0]
 
-
-def map_function(func, lis):
+def map_function(items):
 	"""
 	Takes function and list. 
 	Returns NEW list containing results of applying given function to each element of given list. 
 	"""
-	# if len(lis) == 0:
-	# 	return None
-	# lis_num = 0
-	# while lis[lis_num] == 0:
+	func = items[0]
+	lis = items[1]
+	if lis == None:
+		return None
+	copied_lis = copier(lis)
+	current = copied_lis
+	while current != None:
+		current.car = func([current.car])
+		current = cdr([current])
+	return copied_lis
 
-	# ca = lis[lis_num].car
-	# cd = lis[lis_num].cdr
-	# result = cons([ca, cd])
-	# while cdr != None:
-
-def filt(func, lis):
+def filt(items):
 	"""
 	Takes function and list. 
 	Returns NEW list containing only TRUE elements. 
 	"""
-	pass
+	func = items[0]
+	lis = items[1]
+	if lis == None:
+		return None
+	copied_lis = copier(lis)
+	current = copied_lis
+	while current != None:
+		if current.cdr != None and not func(current.cdr.car):
+			current.cdr = current.cdr.cdr
+		else:
+			current = cdr([current])
+	return copied_lis
 
 carlae_builtins = {
 	'+': sum,
@@ -257,7 +268,7 @@ carlae_builtins = {
 	'elt-at-index': element_at_index, 
 	'concat': concat,
 	'map': map_function,
-	'filter': filt,
+	'filter': filt
 
 }
 
@@ -298,6 +309,8 @@ class Functions:
 		self.expr = expr
 		self.parent = parent
 	def __call__(self, pa):
+		if not isinstance(pa, list):
+			pa = [pa]
 		if len(pa) != len(self.params):
 			raise EvaluationError
 		e = Environments(self.parent)
@@ -397,7 +410,7 @@ if __name__ == '__main__':
 	#     inp_new = parse(tokenize(inp))
 	#     print("Output:", evaluate(inp_new, e))
 	E = Environments()
-	trees = ['(define x (list 1))', '(concat x x x)']
+	trees = []
 	for t in trees:
 		# print("T", t)
 		t = tokenize(t)
@@ -407,6 +420,6 @@ if __name__ == '__main__':
 		thing = evaluate(t, E)
 		print("EV", thing)
 		while thing != None:
-			print(thing.car)
+			print("CAR", thing.car)
 			thing = thing.cdr
 		print()
