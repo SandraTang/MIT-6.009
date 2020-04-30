@@ -233,12 +233,15 @@ def filt(items):
 	Takes function and list. 
 	Returns NEW list containing only TRUE elements. 
 	"""
+	# not getting first num
 	func = items[0]
 	lis = items[1]
 	if lis == None:
 		return None
 	copied_lis = copier(lis)
 	current = copied_lis
+	while copied_lis != None and not func(copied_lis.car):
+		copied_lis = copied_lis.cdr
 	while current != None:
 		if current.cdr != None and not func(current.cdr.car):
 			current.cdr = current.cdr.cdr
@@ -247,6 +250,9 @@ def filt(items):
 	return copied_lis
 
 def reduc(items):
+	"""
+	Propogates function throughout list. 
+	"""
 	# print(items)
 	func = items[0]
 	lis = items[1]
@@ -256,6 +262,14 @@ def reduc(items):
 	if cdr([lis]) == None:
 		return func([initval, lis.car])
 	return reduc([func, cdr([lis]), func([initval, lis.car])])
+
+def begin(lis):
+	"""
+	Input: List of expressions. 
+	Output: Reuslt of last expression. 
+	"""
+	return evaluate(lis[-1])
+
 
 carlae_builtins = {
 	'+': sum,
@@ -280,7 +294,8 @@ carlae_builtins = {
 	'concat': concat,
 	'map': map_function,
 	'filter': filt,
-	'reduce': reduc
+	'reduce': reduc,
+	'begin': begin
 
 }
 
@@ -422,12 +437,7 @@ if __name__ == '__main__':
 	#     inp_new = parse(tokenize(inp))
 	#     print("Output:", evaluate(inp_new, e))
 	E = Environments()
-	trees = [
-	'(lambda (i) (< i 0))', 
-	'(filter (lambda (i) (< i 0)) (list 1 2 3 4))', 
-	'(map (lambda (i) (* i i)) (filter (lambda (i) (< i 0)) (list 1 2 3 4)))', 
-	'(reduce + (map (lambda (i) (* i i)) (filter (lambda (i) (< i 0)) (list 1 2 3 4))) 82)', 
-	]
+	trees = []
 
 	# 1 4 9 16
 
