@@ -295,7 +295,6 @@ carlae_builtins = {
 	'filter': filt,
 	'reduce': reduc,
 	'begin': begin
-
 }
 
 class Environments:
@@ -348,7 +347,6 @@ class Pair: # aka cell
 	def __init__(self, car, cdr):
 		self.car = car
 		self.cdr = cdr
-
 
 def evaluate_file(file, environment = None):
 	if environment is None:
@@ -418,6 +416,24 @@ def evaluate(tree, environment = None):
 			if evaluate(tree[index+1], environment) == True:
 				return True
 		return False
+	elif tree[0] == 'let':
+		# assignment
+		params = [item[0] for item in tree[1]]
+		values = [item[1] for item in tree[1]]
+		body = tree[2]
+		# evaluate values
+		ev_vals = []
+		for val in values:
+			ev_vals.append(evaluate(val, environment))
+		# create and use function
+		f = Functions(params, body, environment)
+		return f(ev_vals)
+	elif tree[0] == 'set!':
+		var = tree[1]
+		exp = evaluate(tree[2], environment)
+		if var not in environment:
+			raise NameError
+		environment[var] = exp
 	else:
 		try:
 			new_tree = []
@@ -448,20 +464,27 @@ if __name__ == '__main__':
 	#     print(">>>", inp)
 	#     inp_new = parse(tokenize(inp))
 	#     print("Output:", evaluate(inp_new, e))
-	# E = Environments()
-	# trees = []
-	# for t in trees:
-	# 	# print("T", t)
-	# 	t = tokenize(t)
-	# 	# print("TOKEN", t)
-	# 	t = parse(t)
-	# 	# print("PARSE", t)
-	# 	thing = evaluate(t, E)
-	# 	print("EV", thing)
-	# 	try:
-	# 		while thing != None:
-	# 			print(thing.car)
-	# 			thing = thing.cdr
-	# 	except:
-	# 		print()
-	# 	print()
+	E = Environments()
+	trees = [
+	'(define y 10)', 
+	'y', 
+	'((lambda (z) (set! y (+ z y))) 9)', 
+	'y', 
+	'((lambda (z) (set! x (+ z y))) 9)', 
+	'x'
+	]
+	for t in trees:
+		# print("T", t)
+		t = tokenize(t)
+		# print("TOKEN", t)
+		t = parse(t)
+		# print("PARSE", t)
+		thing = evaluate(t, E)
+		print("EV", thing)
+		try:
+			while thing != None:
+				print(thing.car)
+				thing = thing.cdr
+		except:
+			print()
+		print()
