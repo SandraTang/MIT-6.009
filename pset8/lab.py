@@ -270,7 +270,6 @@ def begin(lis):
 	"""
 	return evaluate(lis[-1])
 
-
 carlae_builtins = {
 	'+': sum,
 	'-': lambda args: -args[0] if len(args) == 1 else (args[0] - sum(args[1:])),
@@ -349,6 +348,19 @@ class Pair: # aka cell
 	def __init__(self, car, cdr):
 		self.car = car
 		self.cdr = cdr
+
+
+def evaluate_file(file, environment = None):
+	if environment is None:
+		environment = Environments(Carlae)
+	# read and split into lines
+	f = open(file, 'r')
+	t = f.read()
+	f.close()
+	# evaluate
+	t = tokenize(t)
+	t = parse(t)
+	return evaluate(t, environment)
 
 def evaluate(tree, environment = None):
 	"""
@@ -436,23 +448,20 @@ if __name__ == '__main__':
 	#     print(">>>", inp)
 	#     inp_new = parse(tokenize(inp))
 	#     print("Output:", evaluate(inp_new, e))
-	E = Environments()
-	trees = []
-
-	# 1 4 9 16
-
-	for t in trees:
-		# print("T", t)
-		t = tokenize(t)
-		# print("TOKEN", t)
-		t = parse(t)
-		# print("PARSE", t)
-		thing = evaluate(t, E)
-		print("EV", thing)
-		try:
-			while thing != None:
-				print(thing.car)
-				thing = thing.cdr
-		except:
-			print()
-		print()
+	# E = Environments()
+	# trees = []
+	# for t in trees:
+	# 	# print("T", t)
+	# 	t = tokenize(t)
+	# 	# print("TOKEN", t)
+	# 	t = parse(t)
+	# 	# print("PARSE", t)
+	# 	thing = evaluate(t, E)
+	# 	print("EV", thing)
+	# 	try:
+	# 		while thing != None:
+	# 			print(thing.car)
+	# 			thing = thing.cdr
+	# 	except:
+	# 		print()
+	# 	print()
