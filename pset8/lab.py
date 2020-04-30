@@ -246,6 +246,17 @@ def filt(items):
 			current = cdr([current])
 	return copied_lis
 
+def reduc(items):
+	# print(items)
+	func = items[0]
+	lis = items[1]
+	initval = items[2]
+	if lis == None:
+		return initval
+	if cdr([lis]) == None:
+		return func([initval, lis.car])
+	return reduc([func, cdr([lis]), func([initval, lis.car])])
+
 carlae_builtins = {
 	'+': sum,
 	'-': lambda args: -args[0] if len(args) == 1 else (args[0] - sum(args[1:])),
@@ -268,7 +279,8 @@ carlae_builtins = {
 	'elt-at-index': element_at_index, 
 	'concat': concat,
 	'map': map_function,
-	'filter': filt
+	'filter': filt,
+	'reduce': reduc
 
 }
 
@@ -410,7 +422,15 @@ if __name__ == '__main__':
 	#     inp_new = parse(tokenize(inp))
 	#     print("Output:", evaluate(inp_new, e))
 	E = Environments()
-	trees = []
+	trees = [
+	'(lambda (i) (< i 0))', 
+	'(filter (lambda (i) (< i 0)) (list 1 2 3 4))', 
+	'(map (lambda (i) (* i i)) (filter (lambda (i) (< i 0)) (list 1 2 3 4)))', 
+	'(reduce + (map (lambda (i) (* i i)) (filter (lambda (i) (< i 0)) (list 1 2 3 4))) 82)', 
+	]
+
+	# 1 4 9 16
+
 	for t in trees:
 		# print("T", t)
 		t = tokenize(t)
@@ -419,7 +439,10 @@ if __name__ == '__main__':
 		# print("PARSE", t)
 		thing = evaluate(t, E)
 		print("EV", thing)
-		while thing != None:
-			print("CAR", thing.car)
-			thing = thing.cdr
+		try:
+			while thing != None:
+				print(thing.car)
+				thing = thing.cdr
+		except:
+			print()
 		print()
