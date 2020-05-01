@@ -321,6 +321,11 @@ class Environments:
 			return key in self.variables.keys() or key in self.parent
 		else:
 			return key in self.variables.keys()
+	def in_which_environment(self, key):
+		if key in self.variables.keys():
+			return self
+		else:
+			return self.parent.in_which_environment(key)
 	def __iter__(self):
 		for key, value in self.variables.items():
 			yield key, value
@@ -433,7 +438,9 @@ def evaluate(tree, environment = None):
 		exp = evaluate(tree[2], environment)
 		if var not in environment:
 			raise NameError
-		environment[var] = exp
+		e = environment.in_which_environment(var)
+		e[var] = exp
+		return exp
 	else:
 		try:
 			new_tree = []
@@ -454,16 +461,21 @@ def result_and_env(tree, environment = None):
 if __name__ == '__main__':
 	# code in this block will only be executed if lab.py is the main file being
 	# run (not when this module is imported)
-	pass
+
+	# data = tokenize(parse(sys.argv))
+	# for d in data[1:]:
+	# 	evaluate_file(d)
+
 	# uncommenting the following line will run doctests from above
 	# doctest.testmod()
+
 	# e = Environments(Carlae)
 	# inp = ''
 	# while (inp != 'QUIT'):
 	#     inp = input("Input: ")
-	#     print(">>>", inp)
 	#     inp_new = parse(tokenize(inp))
 	#     print("Output:", evaluate(inp_new, e))
+
 	E = Environments()
 	trees = [
 	'(define y 10)', 
