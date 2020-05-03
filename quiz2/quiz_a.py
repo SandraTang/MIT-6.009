@@ -12,7 +12,28 @@ def is_word(x):
     return x in allwords
 
 def split_words(s):
-    raise NotImplementedError
+    """
+    Takes string
+    Yields tuples representing sequences of words
+    iateanicecreamcone
+    ateanicecreamcone
+    teanicecreamcone
+    """
+    def recurse(sub):
+        # base case
+        if len(sub) == 0:
+            return ''
+        # recursive
+        for i in range(1, len(sub)):
+            if is_word(sub[:i]):
+                return sub[:i] + recurse(sub[i:])
+    results = []
+    for i in range(1, len(s)):
+        if is_word(s[:i]):
+            result.append(s[:i] + recurse(s[i:]))
+    results = recurse(s)
+    for result in results:
+        yield result
 
 
 ############################################################
