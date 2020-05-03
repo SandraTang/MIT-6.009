@@ -27,11 +27,13 @@ def split_words(s):
         for i in range(1, len(sub)):
             if is_word(sub[:i]):
                 return sub[:i] + recurse(sub[i:])
+            else:
+                return None
     results = []
     for i in range(1, len(s)):
         if is_word(s[:i]):
             result.append(s[:i] + recurse(s[i:]))
-    results = recurse(s)
+    results = [result for result in results if result[-1] != None]
     for result in results:
         yield result
 
