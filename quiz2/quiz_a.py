@@ -135,6 +135,8 @@ def k_queens_coverage(k, size):
         array[i] = -1. If there is no such board that satisfies the problem,
         return None.
     """
+    if k == 0:
+        return None
     agenda = []
     # generate possible locations
     locations = locs(size)
@@ -142,20 +144,22 @@ def k_queens_coverage(k, size):
     guesses = locs((size+1)//2)
     for guess in guesses:
         # 1D array, free spaces left
-        arr = [-1]*5
+        arr = [-1]*size
         arr[guess[1]] = guess[0]
-        agenda.append([arr, locations-moves(guess, size)])
+        agenda.append([arr, locations-moves(guess, size), 1])
     # djikstra's while loop
     while agenda:
-        info = agenda.pop(0)
+        info = agenda.pop()
         board = info[0]
         free = info[1]
+        queens = info[2]
         if free == set():
             return board
-        for spot in free:
-            new_board = board.copy()
-            new_board[spot[1]] = spot[0]
-            agenda.append([new_board, free-moves(spot, size)])
+        if queens < k:
+            for spot in free:
+                new_board = board.copy()
+                new_board[spot[1]] = spot[0]
+                agenda.append([new_board, free-moves(spot, size), queens+1])
     return None
 
 
