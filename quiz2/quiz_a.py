@@ -19,23 +19,18 @@ def split_words(s):
     ateanicecreamcone
     teanicecreamcone
     """
-    def recurse(sub):
-        # base case
-        if len(sub) == 0:
-            return ''
-        # recursive
-        for i in range(1, len(sub)):
-            if is_word(sub[:i]):
-                return sub[:i] + recurse(sub[i:])
-            else:
-                return None
-    results = []
-    for i in range(1, len(s)):
-        if is_word(s[:i]):
-            result.append(s[:i] + recurse(s[i:]))
-    results = [result for result in results if result[-1] != None]
-    for result in results:
-        yield result
+    agenda = [['', s]]
+    while agenda:
+        both = agenda.pop(0)
+        word = both[0]
+        left = both[1]
+        # 'base case'
+        if len(left) == 0:
+            yield tuple(word.split())
+        # 'recursive'
+        for i in range(len(left)):
+            if is_word(left[:i+1]):
+                agenda.append([word + left[:i+1] + ' ' , left[i+1:]])
 
 
 ############################################################
