@@ -42,7 +42,7 @@ def split_words(s):
 class InfiniteList:
     def __init__(self, f):
         """Create an infinite list where position i contains value f(i)."""
-        pass
+        self.f = f
 
     def __getitem__(self, i):
         """Standard Python method for defining notation ls[i], which expands to ls.__getitem__(i)"""
