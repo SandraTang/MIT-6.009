@@ -90,29 +90,29 @@ class InfiniteList:
 ##  Problem 3
 ##################################################
 
-def locs(k):
+def locs(size):
     result = set()
-    for i in range(k):
-        for j in range(k):
+    for i in range(size):
+        for j in range(size):
             result.add((i, j))
     return result
 
-def moves(loc, k):
+def moves(loc, size):
     x = loc[0]
     y = loc[1]
     result = set()
-    for i in range(k):
+    for i in range(size):
         # horizontal, vertical
         result.add((x, i))
         result.add((i, y))
         # diagonals
         if x-i >= 0 and y-i >= 0:
             result.add((x-i, y-i))
-        if x+i < k and y+i < k:
+        if x+i < size and y+i < size:
             result.add((x+i, y+i))
-        if x-i >= 0 and y+i < k:
+        if x-i >= 0 and y+i < size:
             result.add((x-i, y+i))
-        if x+i < k and y-i >= 0:
+        if x+i < size and y-i >= 0:
             result.add((x+i, y-i))
     return result
 
@@ -135,9 +135,29 @@ def k_queens_coverage(k, size):
         array[i] = -1. If there is no such board that satisfies the problem,
         return None.
     """
+    agenda = []
     # generate possible locations
+    locations = locs(size)
     # try positions in top quarter (first move idential reflected over axes)
+    guesses = locs((size+1)//2)
+    for guess in guesses:
+        # 1D array, free spaces left
+        arr = [-1]*5
+        arr[guess[1]] = guess[0]
+        agenda.append([arr, locations-moves(guess, size)])
     # djikstra's while loop
+    while agenda:
+        info = agenda.pop(0)
+        board = info[0]
+        free = info[1]
+        if free == set():
+            return board
+        for spot in free:
+            new_board = board.copy()
+            new_board[spot[1]] = spot[0]
+            agenda.append([new_board, free-moves(spot, size)])
+    return None
+
 
 if __name__ == "__main__":
     # Test with doctests. Helpful to debug individual quiz.py functions.
