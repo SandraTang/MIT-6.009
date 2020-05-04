@@ -90,6 +90,32 @@ class InfiniteList:
 ##  Problem 3
 ##################################################
 
+def locs(k):
+    result = set()
+    for i in range(k):
+        for j in range(k):
+            result.add((i, j))
+    return result
+
+def moves(loc, k):
+    x = loc[0]
+    y = loc[1]
+    result = set()
+    for i in range(k):
+        # horizontal, vertical
+        result.add((x, i))
+        result.add((i, y))
+        # diagonals
+        if x-i >= 0 and y-i >= 0:
+            result.add((x-i, y-i))
+        if x+i < k and y+i < k:
+            result.add((x+i, y+i))
+        if x-i >= 0 and y+i < k:
+            result.add((x-i, y+i))
+        if x+i < k and y-i >= 0:
+            result.add((x+i, y-i))
+    return result
+
 def k_queens_coverage(k, size):
     """
     Checks if it is possible to place less than or equal to 'k' queens on a
@@ -109,7 +135,9 @@ def k_queens_coverage(k, size):
         array[i] = -1. If there is no such board that satisfies the problem,
         return None.
     """
-    raise NotImplementedError
+    # generate possible locations
+    # try positions in top quarter (first move idential reflected over axes)
+    # djikstra's while loop
 
 if __name__ == "__main__":
     # Test with doctests. Helpful to debug individual quiz.py functions.
