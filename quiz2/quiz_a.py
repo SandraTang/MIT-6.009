@@ -40,35 +40,50 @@ def split_words(s):
 # Infinite lists
 
 class InfiniteList:
-    def __init__(self, f):
+    def __init__(self, f, d = None):
         """Create an infinite list where position i contains value f(i)."""
         self.f = f
+        if d == None:
+            self.d = {}
+        else:
+            self.d = d
 
     def __getitem__(self, i):
         """Standard Python method for defining notation ls[i], which expands to ls.__getitem__(i)"""
-        pass
+        if i in self.d.keys():
+            return self.d[i]
+        return self.f(i)
 
     def __setitem__(self, i, val):
         """Standard Python method for defining notation ls[i] = val, which expands to ls.__setitem__(i, val)"""
-        pass
+        self.d[i] = val
 
     def __iter__(self):
         """Standard Python method for producing a generator where called for, e.g. to loop over.
         Note that this iterator has infinitely many values to return, so a usual loop over it will never finish!
         It should yield values from index 0 to infinity, one by one."""
-        pass
+        i = 0
+        while True:
+            yield self[i]
+            i += 1
 
     def __add__(self, other):
         """Standard Python method for defining notation a + b, which expands to a.__add__(b).
         For this quiz question, other will be another InfiniteList, and the generated InfiniteList should
         add the elements of self and other, at each position."""
-        pass
+        new_d = {}
+        keys = set(self.d.keys()) | set(other.d.keys())
+        for key in keys:
+            new_d[key] = self[key] + other[key]
+        return InfiniteList(lambda x: self.f(x) + other.f(x), new_d)
 
     def __mul__(self, other):
         """Standard Python method for defining notation a * b, which expands to a.__mul__(b).
         For this quiz question, other will be a number, and the generated InfiniteList should
         multiply each position of self by other."""
-        pass
+        for key in self.d.keys():
+            self.d[key] = self.d[key]*other
+        return InfiniteList(lambda x: self.f(x) * other, self.d)
 
 
 ##################################################
