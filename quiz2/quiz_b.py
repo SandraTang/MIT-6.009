@@ -84,11 +84,9 @@ def n_bishops(n, bishop_locs, target):
             return biloc
         for spot in spots:
             new_biloc = biloc.copy()
-            new_biloc.append(spot)
+            new_biloc.add(spot)
             agenda.append([new_biloc, spots-moves(spot, n)])
     return None
-
-
 
 #############
 # Problem 2 #
