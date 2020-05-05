@@ -23,7 +23,8 @@ def binary_trees(n):
     while agenda:
         item = agenda.pop()
         tree = item[0]
-        num = item[1]
+        decision = item[1]
+        num = item[2]
         if num == n:
             yield tuple(tree)
         # for each None in tree, replace with (None, None)
@@ -37,6 +38,29 @@ def binary_trees(n):
 # Problem 2 #
 #############
 
+def locs(size):
+    result = set()
+    for i in range(size):
+        for j in range(size):
+            result.add((i, j))
+    return result
+
+def moves(loc, size):
+    x = loc[0]
+    y = loc[1]
+    result = set()
+    for i in range(size):
+        # diagonals
+        if x-i >= 0 and y-i >= 0:
+            result.add((x-i, y-i))
+        if x+i < size and y+i < size:
+            result.add((x+i, y+i))
+        if x-i >= 0 and y+i < size:
+            result.add((x-i, y+i))
+        if x+i < size and y-i >= 0:
+            result.add((x+i, y-i))
+    return result
+
 def n_bishops(n, bishop_locs, target):
     """
     Finds the placement of target amount of bishops such that
@@ -45,7 +69,25 @@ def n_bishops(n, bishop_locs, target):
     :param bishop_locs: the locations of the bishops already on the board
     :param target: the total number of bishops
     """
-    raise NotImplementedError
+    board = locs(n)
+    for loc in bishop_locs:
+        bl = moves(loc, n)
+        board = board - bl
+    remaining = target - len(bishop_locs)
+    # bishop locs, free spots
+    agenda = [(bishop_locs, board)]
+    while agenda:
+        info = agenda.pop()
+        biloc = info[0]
+        spots = info[1]
+        if len(biloc) == target:
+            return biloc
+        for spot in spots:
+            new_biloc = biloc.copy()
+            new_biloc.append(spot)
+            agenda.append([new_biloc, spots-moves(spot, n)])
+    return None
+
 
 
 #############
