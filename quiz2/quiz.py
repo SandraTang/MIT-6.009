@@ -35,7 +35,7 @@ def genseq(f, a, b):
 ##################################################
 
 
-def feed(people, food, current = None):
+def feed(people, food, curren = None):
 	"""
 	People is dictionary mapping name to food person is willing to eat. 
 	Food is dictionary mapping food item to quantity. 
@@ -76,21 +76,25 @@ def feed(people, food, current = None):
 	>>> sorted((res['candace'], res['dave'], res['emery']))
 	['cake', 'cake', 'cheese']
 	"""
-	if current == None:
+	if curren == None:
 		current = {}
+	else:
+		current = curren.copy()
 	# base case
 	if current.keys() == people.keys():
 		return current
+	# copy food
+	foo = food.copy()
 	# simplify
 	def obvious(curr):
 		hungry = [person for person in people.keys() if person not in curr.keys()]
 		for name in hungry:
-			available = [dish for dish in people[name] if food[dish] > 0]
+			available = [dish for dish in people[name] if dish in foo and foo[dish] > 0]
 			if len(available) == 0:
 				return None
 			if len(available) == 1:
 				dish = available[0]
-				food[dish] -= 1
+				foo[dish] -= 1
 				curr[name] = dish
 		return curr
 	prev = len(current)
@@ -107,10 +111,10 @@ def feed(people, food, current = None):
 	name = [person for person in people.keys() if person not in current.keys()][-1]
 	temp = current.copy()
 	# explore branches (multiple branches, not just left/right)
-	available = [dish for dish in people[name] if food[dish] > 0]
+	available = [dish for dish in people[name] if dish in foo and foo[dish] > 0]
 	for dish in available:
 		temp[name] = dish
-		new_food = food.copy()
+		new_food = foo.copy()
 		new_food[dish] -= 1
 		result = feed(people, new_food, temp)
 		if result != None:
@@ -200,6 +204,8 @@ class Sequence:
 
 	def find_all(self, text):
 		pass
+		# adadadadadadadgadgadgadgadgad
+		# 01234567890123456789012345678
 
 
 class Alternatives:
