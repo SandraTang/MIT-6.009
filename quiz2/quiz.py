@@ -76,6 +76,13 @@ def feed(people, food, curren = None):
 	>>> sorted((res['candace'], res['dave'], res['emery']))
 	['cake', 'cake', 'cheese']
 	"""
+	# RESUBMISSION COMMENT - WHAT WAS WRONG WITH MY ORIGINAL SOLUTION
+	# My original solution attempted to use DFS (Depth First Search)
+	# instead of backtracking, the current solution, which is much
+	# more efficient. Also, there were problems with dictionary keys
+	# not existing. My new solution avoids that problem by creating
+	# copies of current and food so that I can safely alter the data.
+
 	if curren == None:
 		current = {}
 	else:
@@ -183,6 +190,10 @@ class CharNotFrom:
 		return None
 
 
+def fa():
+	pass
+
+
 class Sequence:
 	"""
 	Matches only if the given patterns all occur in order.  Patterns is given
@@ -202,10 +213,10 @@ class Sequence:
 			start = end
 		return (start_index, end, text[start_index:end])
 
-	def find_all(self, text):
-		pass
-		# adadadadadadadgadgadgadgadgad
-		# 01234567890123456789012345678
+def find_all(self, text):
+	pass
+	# adadadadadadadgadgadgadgadgad
+	# 01234567890123456789012345678
 
 
 class Alternatives:
