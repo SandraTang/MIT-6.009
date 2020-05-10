@@ -134,7 +134,29 @@ def feed(people, food, curren = None):
 ##################################################
 
 
-class Verbatim:
+# RESUBMISSION COMMENT - WHAT WAS WRONG WITH MY ORIGINAL SOLUTION
+# My original solution was incomplete. 
+# FindAll was not implemented. 
+# 
+
+
+class FindAll:
+	def find_all(self, text):
+		if isinstance(self, Sequence) or isinstance(self, Alternatives) or isinstance(self, Repeat) or isinstance(self, Star):
+			i = 0
+			while i < len(text):
+				result = self.match(text, i)
+				if result != None:
+					yield result
+					i = result[1]
+				else:
+					i += 1
+		else:
+			a = Sequence(self)
+			return fa(a, text)
+
+
+class Verbatim(FindAll):
 	"""
 	Matches the given string, verbatim.
 	"""
@@ -150,7 +172,7 @@ class Verbatim:
 		return (start_index, start_index + len(self.string), self.string)
 
 
-class Dot:
+class Dot(FindAll):
 	"""
 	Matches any single character in a piece of text.
 	"""
@@ -160,7 +182,7 @@ class Dot:
 		return (start_index, start_index+1, text[start_index])
 
 
-class CharFrom:
+class CharFrom(FindAll):
 	"""
 	Matches any single character from the given iterable object of characters.
 	"""
@@ -175,7 +197,7 @@ class CharFrom:
 		return None
 
 
-class CharNotFrom:
+class CharNotFrom(FindAll):
 	"""
 	Matches any single character _not_ contained in the given iterable object.
 	"""
@@ -187,14 +209,9 @@ class CharNotFrom:
 			return None
 		if text[start_index] not in self.chars:
 			return (start_index, start_index+1, text[start_index])
-		return None
 
 
-def fa():
-	pass
-
-
-class Sequence:
+class Sequence(FindAll):
 	"""
 	Matches only if the given patterns all occur in order.  Patterns is given
 	as a list of instances of one of these classes.
@@ -213,13 +230,8 @@ class Sequence:
 			start = end
 		return (start_index, end, text[start_index:end])
 
-def find_all(self, text):
-	pass
-	# adadadadadadadgadgadgadgadgad
-	# 01234567890123456789012345678
 
-
-class Alternatives:
+class Alternatives(FindAll):
 	"""
 	Matches if _any_ of the given patterns match, by trying them in the order
 	they were given.
@@ -235,7 +247,7 @@ class Alternatives:
 		return None
 
 
-class Repeat:
+class Repeat(FindAll):
 	"""
 	Matches if the given pattern (given as an instance of one of these classes)
 	exists repeated between n_min (inclusive) and n_max (inclusive) times.
@@ -264,7 +276,7 @@ class Repeat:
 		return (start_index, end, text[start_index:end])
 
 
-class Star:
+class Star(FindAll):
 	"""
 	Matches the given pattern (an instance of one of these classes) repeated an
 	arbitrary number of times.  0 times (matching the empty string) is a valid
