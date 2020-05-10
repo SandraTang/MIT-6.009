@@ -137,7 +137,12 @@ def feed(people, food, curren = None):
 # RESUBMISSION COMMENT - WHAT WAS WRONG WITH MY ORIGINAL SOLUTION
 # My original solution was incomplete. 
 # FindAll was not implemented. 
-# 
+# Star, Sequence, and Repeat failed. 
+# Star - Incomplete. 
+# Sequence - Did not handle the case when None was returned properly. 
+# Now I have a check for when the result of calling match is None. 
+# Repeat - Also did not handle the case when None was returned properly. 
+# Now I have a check for when the result of calling match is None. 
 
 
 class FindAll:
